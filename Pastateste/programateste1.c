@@ -63,7 +63,7 @@ void add_reading(SensorData *sensor, long timestamp, const char *value_str) {
         sensor->capacity = (sensor->capacity == 0) ? 1 : sensor->capacity * 2;
         SensorReading *tmp = realloc(sensor->readings, sensor->capacity * sizeof(SensorReading));
         if (!tmp) {
-            fprintf(stderr, "Memory allocation failed for sensor %s\n", sensor->id);
+            fprintf(stderr, "Erro em alocacao de memoria %s\n", sensor->id);
             free(sensor->readings);
             exit(EXIT_FAILURE);
         }
@@ -92,7 +92,7 @@ int compare_readings(const void *a, const void *b) {
 void process_file(const char *filename) {
     FILE *file = fopen(filename, "r");
     if (!file) {
-        perror("Error opening input file");
+        perror("Error em abrir o arquivo");
         exit(EXIT_FAILURE);
     }
 
@@ -110,14 +110,14 @@ void process_file(const char *filename) {
         char value[MAX_LINE_LENGTH];
         
         if (sscanf(line, "%ld %49s %255[^\n]", &timestamp, sensor_id, value) != 3) {
-            fprintf(stderr, "Warning: Malformed line: %s", line);
+            fprintf(stderr, "linha com erro ou afins: %s", line);
             continue;
         }
         
         
         int value_type = determine_value_type(value);
         if (value_type == -1) {
-            fprintf(stderr, "Warning: Unknown value type for sensor %s: %s\n", sensor_id, value);
+            fprintf(stderr, "aviso: valor nao reconhecido para o sensor em questão %s: %s\n", sensor_id, value);
             continue;
         }
         
@@ -127,7 +127,7 @@ void process_file(const char *filename) {
             if (strcmp(sensors[i].id, sensor_id) == 0) {
                 sensor = &sensors[i];
                 if (sensor->type != value_type) {
-                    fprintf(stderr, "Warning: Type mismatch for sensor %s. Expected %d, got %d\n", 
+                    fprintf(stderr, "Warning: incopatibilidade para sensor %s. Seria %d, teve %d\n", 
                             sensor_id, sensor->type, value_type);
                     sensor = NULL;
                 }
@@ -137,7 +137,7 @@ void process_file(const char *filename) {
         
         if (!sensor) {
             if (sensor_count >= MAX_SENSORS) {
-                fprintf(stderr, "Error: Too many sensors. Increase MAX_SENSORS.\n");
+                fprintf(stderr, "Error: muitos sensores. se quiser continuar aumente MAX_SENSORS.\n");
                 continue;
             }
             sensor = &sensors[sensor_count++];
